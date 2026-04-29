@@ -101,6 +101,8 @@ selectedBank: string = 'NUBANK_CSV';
   ];
 
   groups: { label: string, value: string }[] = [];
+  groupsRaw: any[] = []; // Salva os objetos completos dos grupos
+  groupMembers: any[] = []; // Membros do grupo selecionado
 
   constructor() {
     this.transactionForm = this.fb.group({
@@ -111,7 +113,8 @@ selectedBank: string = 'NUBANK_CSV';
       account: [null, Validators.required],
       date: [new Date(), Validators.required], 
       isShared: [false],
-      sharedGroups: [null]
+      sharedGroups: [null],
+      participantIds: [[]] // Controle para a divisão de contas
     });
   }
 
@@ -161,6 +164,7 @@ selectedBank: string = 'NUBANK_CSV';
   loadGroups() {
     this.groupService.getAll().subscribe({
       next: (data) => {
+        this.groupsRaw = data;
         this.groups = data.map(g => ({
           label: g.name,
           value: g.name
@@ -168,6 +172,21 @@ selectedBank: string = 'NUBANK_CSV';
       },
       error: (err) => console.error('Erro ao carregar grupos', err)
     });
+  }
+
+  onGroupChange(event: any) {
+    const groupName = event.value;
+    const selectedGroup = this.groupsRaw.find(g => g.name === groupName);
+    
+    if (selectedGroup && selectedGroup.members) {
+      this.groupMembers = selectedGroup.members;
+      // Seleciona todos os membros por padrão
+      const allMemberIds = this.groupMembers.map(m => m.id);
+      this.transactionForm.get('participantIds')?.setValue(allMemberIds);
+    } else {
+      this.groupMembers = [];
+      this.transactionForm.get('participantIds')?.setValue([]);
+    }
   }
 
   onPeriodChange() {
@@ -308,13 +327,15 @@ selectedBank: string = 'NUBANK_CSV';
 
   showModal() {
     this.editingId = null; 
-    this.transactionForm.reset({ type: 'EXPENSE', date: new Date(), isShared: false, sharedGroups: null });
+    this.transactionForm.reset({ type: 'EXPENSE', date: new Date(), isShared: false, sharedGroups: null, participantIds: [] });
+    this.groupMembers = [];
     this.displayModal = true;
   }
 
   hideModal() {
     this.displayModal = false;
     this.editingId = null; 
+    this.groupMembers = [];
   }
 
   editTransaction(transaction: any) {
@@ -333,8 +354,17 @@ selectedBank: string = 'NUBANK_CSV';
       account: transaction.account,
       date: dateObj,
       isShared: isShared,
-      sharedGroups: isShared ? transaction.group : null
+      sharedGroups: isShared ? transaction.group : null,
+      participantIds: [] // No futuro, se for editar os participantes, preencheria aqui
     });
+
+    if (isShared && transaction.group) {
+      // Tenta recuperar os membros do grupo para caso o usuário queira editar
+      const selectedGroup = this.groupsRaw.find(g => g.name === transaction.group);
+      if (selectedGroup && selectedGroup.members) {
+        this.groupMembers = selectedGroup.members;
+      }
+    }
 
     this.displayModal = true;
   }
@@ -356,7 +386,8 @@ selectedBank: string = 'NUBANK_CSV';
         category: formValues.category,
         account: formValues.account,
         groupName: (formValues.isShared && formValues.sharedGroups) ? formValues.sharedGroups : 'Pessoal',
-        type: formValues.type
+        type: formValues.type,
+        participantIds: (formValues.isShared && formValues.participantIds) ? formValues.participantIds : []
       };
 
       if (this.editingId) {
