@@ -167,10 +167,10 @@ export class GrupoDashboardComponent implements OnInit {
         this.transactions = expenses.map(t => {
           const dateParts = t.date.split('-');
           const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : t.date;
-          const paidByName = t.paidByName || 'Desconhecido';
+          const paidByName = t.user?.name || 'Desconhecido';
 
           return {
-            id: t.id.toString(),
+            id: t.id!.toString(),
             date: formattedDate,
             description: t.description,
             category: t.category,
@@ -205,10 +205,10 @@ export class GrupoDashboardComponent implements OnInit {
       this.isAddingMember = true;
       const email = this.memberForm.value.email;
 
-      this.groupService.addMember(this.currentGroup.id, email).subscribe({
+      this.groupService.addMember(this.currentGroup!.id, email).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Membro adicionado!' });
-          this.loadGroupData(this.currentGroup.id); // Mágica: recarrega a tela com a pessoa nova!
+          this.loadGroupData(this.currentGroup!.id); // Mágica: recarrega a tela com a pessoa nova!
           this.hideAddMemberModal();
           this.isAddingMember = false;
         },

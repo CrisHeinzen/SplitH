@@ -119,7 +119,7 @@ export class Dashboard implements OnInit {
     if (startDate && endDate) {
       filtered = this.allTransactions.filter(t => {
         const parts = t.date.split('-');
-        const tDate = new Date(parts[0], parts[1] - 1, parts[2]); // Converte o texto do banco para Data real
+        const tDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); // Converte o texto do banco para Data real
         return tDate >= startDate! && tDate <= endDate!;
       });
     }

@@ -17,12 +17,15 @@ import { ToastModule } from 'primeng/toast';
 import { MenuModule } from 'primeng/menu';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-// Services
 import { TransactionService } from '../../core/services/transaction-service';
 import { GroupService } from '../../core/services/group-service';
 import { Transaction, TransactionPayload } from '../../core/models/transaction.model';
 import { Group } from '../../core/models/group.model';
 import { User } from '../../core/models/user.model';
+
+export interface TransactionView extends Transaction {
+  rawDate: Date;
+}
 
 @Component({
   selector: 'app-transactions',
@@ -64,8 +67,8 @@ selectedBank: string = 'NUBANK_CSV';
   isUploading: boolean = false;
 
   // --- VARIÁVEIS DE LISTAGEM E FILTROS ---
-  allTransactions: Transaction[] = [];
-  transactionsList: Transaction[] = [];
+  allTransactions: TransactionView[] = [];
+  transactionsList: TransactionView[] = [];
   selectedPeriod: string = 'thisMonth';
   customDateRange: Date[] = [];
   periodOptions = [
@@ -79,7 +82,7 @@ selectedBank: string = 'NUBANK_CSV';
 
   // --- VARIÁVEIS DA TABELA E AÇÕES ---
   menuItems: MenuItem[] = [];
-  selectedTransaction: Transaction | null = null;
+  selectedTransaction: TransactionView | null = null;
 
   // --- VARIÁVEIS DO MODAL/FORMULÁRIO ---
   displayModal = false;
@@ -152,7 +155,7 @@ selectedBank: string = 'NUBANK_CSV';
             type: t.type,
             amount: t.amount,
             rawDate: new Date(t.date + 'T00:00:00')
-          } as any; // any é usado aqui apenas porque transformamos para tela (rawDate etc)
+          } as TransactionView;
         });
         
         this.applyFilter();
