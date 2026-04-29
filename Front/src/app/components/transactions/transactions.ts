@@ -20,6 +20,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 // Services
 import { TransactionService } from '../../core/services/transaction-service';
 import { GroupService } from '../../core/services/group-service';
+import { Transaction, TransactionPayload } from '../../core/models/transaction.model';
+import { Group } from '../../core/models/group.model';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-transactions',
@@ -61,8 +64,8 @@ selectedBank: string = 'NUBANK_CSV';
   isUploading: boolean = false;
 
   // --- VARIÁVEIS DE LISTAGEM E FILTROS ---
-  allTransactions: any[] = [];
-  transactionsList: any[] = [];
+  allTransactions: Transaction[] = [];
+  transactionsList: Transaction[] = [];
   selectedPeriod: string = 'thisMonth';
   customDateRange: Date[] = [];
   periodOptions = [
@@ -76,7 +79,7 @@ selectedBank: string = 'NUBANK_CSV';
 
   // --- VARIÁVEIS DA TABELA E AÇÕES ---
   menuItems: MenuItem[] = [];
-  selectedTransaction: any = null;
+  selectedTransaction: Transaction | null = null;
 
   // --- VARIÁVEIS DO MODAL/FORMULÁRIO ---
   displayModal = false;
@@ -101,8 +104,8 @@ selectedBank: string = 'NUBANK_CSV';
   ];
 
   groups: { label: string, value: string }[] = [];
-  groupsRaw: any[] = []; // Salva os objetos completos dos grupos
-  groupMembers: any[] = []; // Membros do grupo selecionado
+  groupsRaw: Group[] = []; // Salva os objetos completos dos grupos
+  groupMembers: User[] = []; // Membros do grupo selecionado
 
   constructor() {
     this.transactionForm = this.fb.group({
@@ -145,11 +148,11 @@ selectedBank: string = 'NUBANK_CSV';
             description: t.description,
             category: t.category,
             account: t.account,
-            group: t.groupName, 
+            groupName: t.groupName, 
             type: t.type,
             amount: t.amount,
             rawDate: new Date(t.date + 'T00:00:00')
-          };
+          } as any; // any é usado aqui apenas porque transformamos para tela (rawDate etc)
         });
         
         this.applyFilter();
@@ -296,7 +299,7 @@ selectedBank: string = 'NUBANK_CSV';
   // AÇÕES DA TABELA
   // =========================================================================
 
-  openMenu(event: Event, menu: any, transaction: any) {
+  openMenu(event: Event, menu: any, transaction: any) { // mantido any por causa da tabela modificada
     this.selectedTransaction = transaction; 
     menu.toggle(event); 
   }

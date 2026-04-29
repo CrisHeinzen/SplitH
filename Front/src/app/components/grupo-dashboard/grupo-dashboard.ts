@@ -14,6 +14,9 @@ import { ButtonModule } from 'primeng/button';
 import { GroupService } from '../../core/services/group-service';
 import { TransactionService } from '../../core/services/transaction-service';
 import { AuthService } from '../../core/services/auth-service';
+import { Group } from '../../core/models/group.model';
+import { User } from '../../core/models/user.model';
+import { Transaction as CoreTransaction } from '../../core/models/transaction.model';
 
 export interface Member {
   id: string;
@@ -74,7 +77,7 @@ export class GrupoDashboardComponent implements OnInit {
   selectedPeriod = 'month';
   globalFilter = '';
 
-  currentGroup: any = null;
+  currentGroup: Group | null = null;
   currentUserEmail: string = '';
 
   resume = {
@@ -134,7 +137,7 @@ export class GrupoDashboardComponent implements OnInit {
     });
   }
 
-  loadTransactions(groupName: string, groupMembers: any[]) {
+  loadTransactions(groupName: string, groupMembers: User[]) {
     this.transactionService.getByGroup(groupName).subscribe({
       next: (data) => {
         const expenses = data.filter(t => t.type === 'EXPENSE');
@@ -231,7 +234,7 @@ export class GrupoDashboardComponent implements OnInit {
   // --- VISUAL E GRÁFICOS ---
 
   getCategoryStyle(category: string): string {
-    const styles: any = {
+    const styles: Record<string, string> = {
       'Alimentação': 'bg-amber-500/15 text-amber-400',
       'Casa': 'bg-rose-500/15 text-rose-400',
       'Utilidades': 'bg-sky-500/15 text-sky-400',
@@ -242,7 +245,7 @@ export class GrupoDashboardComponent implements OnInit {
     return styles[category] || 'bg-zinc-500/15 text-zinc-400';
   }
 
-  initChart(expenses: any[] | null): void {
+  initChart(expenses: CoreTransaction[] | null): void {
     if (!expenses || expenses.length === 0) {
       this.chartData = { labels: [], datasets: [] };
       return;

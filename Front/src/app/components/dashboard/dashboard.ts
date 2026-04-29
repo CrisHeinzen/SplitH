@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Necessário para o ngModel funcionar
 import { TransactionService } from '../../core/services/transaction-service';
+import { Transaction } from '../../core/models/transaction.model';
 import { ChartModule } from 'primeng/chart';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -28,12 +29,12 @@ export class Dashboard implements OnInit {
   totalIncome: number = 0;
   totalExpense: number = 0;
   balance: number = 0;
-  recentTransactions: any[] = [];
+  recentTransactions: Transaction[] = [];
   chartData: any;
   chartOptions: any;
 
   // Lógica de Filtro
-  allTransactions: any[] = []; // Guarda todas as transações que vieram do banco
+  allTransactions: Transaction[] = []; // Guarda todas as transações que vieram do banco
   
   periodOptions = [
     { label: 'Este Mês', value: 'thisMonth' },
@@ -128,7 +129,7 @@ export class Dashboard implements OnInit {
   }
 
   // Refaz as contas e monta o gráfico com a lista que sobrou do filtro
-  updateView(transactionsToView: any[]) {
+  updateView(transactionsToView: Transaction[]) {
     this.calculateSummary(transactionsToView);
     this.setupChart(transactionsToView);
 
@@ -139,7 +140,7 @@ export class Dashboard implements OnInit {
     });
   }
 
-  calculateSummary(transactions: any[]) {
+  calculateSummary(transactions: Transaction[]) {
     this.totalIncome = 0;
     this.totalExpense = 0;
 
@@ -154,7 +155,7 @@ export class Dashboard implements OnInit {
     this.balance = this.totalIncome - this.totalExpense;
   }
 
-  setupChart(transactions: any[]) {
+  setupChart(transactions: Transaction[]) {
     const expensesByCategory: { [key: string]: number } = {};
 
     transactions.forEach(t => {

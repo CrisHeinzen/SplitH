@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import com.tcc.splith.dto.GroupResponseDTO;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/groups")
@@ -28,13 +30,13 @@ public class GroupController {
     public record GroupRequest(String name, String description) {}
 
     @GetMapping("/{id}")
-    public ResponseEntity<Group> getGroupById(@PathVariable Long id) {
+    public ResponseEntity<GroupResponseDTO> getGroupById(@PathVariable Long id) {
         Group group = groupRepository.findById(id).orElseThrow();
-        return ResponseEntity.ok(group);
+        return ResponseEntity.ok(GroupResponseDTO.fromEntity(group));
     }
 
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody GroupRequest request) {
+    public ResponseEntity<GroupResponseDTO> createGroup(@RequestBody GroupRequest request) {
         // 1. Descobre quem é o usuário logado
         JWTUserData loggedUser = (JWTUserData) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(loggedUser.userId()).orElseThrow();
@@ -49,25 +51,30 @@ public class GroupController {
 
         // 4. Salva e devolve pro Angular
         Group savedGroup = groupRepository.save(group);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup);
+        return ResponseEntity.status(HttpStatus.CREATED).body(GroupResponseDTO.fromEntity(savedGroup));
     }
 
     @GetMapping
-    public ResponseEntity<List<Group>> getUserGroups() {
+    public ResponseEntity<List<GroupResponseDTO>> getUserGroups() {
         // Descobre quem é o usuário logado
         JWTUserData loggedUser = (JWTUserData) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(loggedUser.userId()).orElseThrow();
 
         // Busca apenas os grupos onde esse usuário está na lista de membros
         List<Group> groups = groupRepository.findByMembersContaining(user);
-        return ResponseEntity.ok(groups);
+        
+        List<GroupResponseDTO> response = groups.stream()
+                .map(GroupResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+                
+        return ResponseEntity.ok(response);
     }
 
 
     public record AddMemberRequest(String email) {}
 
     @PostMapping("/{groupId}/members")
-    public ResponseEntity<Group> addMemberToGroup(@PathVariable Long groupId, @RequestBody AddMemberRequest request) {
+    public ResponseEntity<GroupResponseDTO> addMemberToGroup(@PathVariable Long groupId, @RequestBody AddMemberRequest request) {
         // 1. Encontra o grupo pelo ID
         Group group = groupRepository.findById(groupId).orElseThrow();
 
@@ -82,6 +89,6 @@ public class GroupController {
         // 4. Salva no banco de dados
         Group savedGroup = groupRepository.save(group);
 
-        return ResponseEntity.ok(savedGroup);
+        return ResponseEntity.ok(GroupResponseDTO.fromEntity(savedGroup));
     }
 }

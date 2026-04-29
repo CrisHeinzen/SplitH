@@ -6,6 +6,7 @@ import com.tcc.splith.entity.Transaction;
 import com.tcc.splith.entity.User;
 import com.tcc.splith.repository.TransactionRepository;
 import com.tcc.splith.service.strategy.StatementProcessorStrategy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class StatementImportService {
 
     private final List<StatementProcessorStrategy> strategies;
@@ -53,6 +55,6 @@ public class StatementImportService {
 
         transactionRepository.saveAll(transactionsToSave);
 
-        System.out.println(transactionsToSave.size() + " transações foram salvas no banco com sucesso!");
+        log.info("{} transações foram salvas no banco com sucesso!", transactionsToSave.size());
     }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GroupService } from '../../core/services/group-service';
+import { Group } from '../../core/models/group.model';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
@@ -31,7 +32,7 @@ export class Aside implements OnInit {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   
-  grupos: any[] = [];
+  grupos: Group[] = [];
   isLoading = true;
 
   // Controle do Modal de Novo Grupo

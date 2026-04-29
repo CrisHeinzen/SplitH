@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Transaction, TransactionPayload } from '../models/transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -8,32 +10,31 @@ import { Observable } from 'rxjs';
 export class TransactionService {
   private http = inject(HttpClient);
   
-  // Usamos apenas UMA variável com a URL correta, sem o /api
-  private apiUrl = 'http://localhost:8080/transactions'; 
+  private apiUrl = `${environment.apiUrl}/transactions`;
 
-  create(transaction: any): Observable<any> {
-    return this.http.post(this.apiUrl, transaction);
+  create(transaction: TransactionPayload): Observable<Transaction> {
+    return this.http.post<Transaction>(this.apiUrl, transaction);
   }
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getAll(): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(this.apiUrl);
   }
 
-  update(id: number, transaction: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, transaction);
+  update(id: number, transaction: TransactionPayload): Observable<Transaction> {
+    return this.http.put<Transaction>(`${this.apiUrl}/${id}`, transaction);
   }
 
-  delete(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  getByGroup(groupName: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/group/${groupName}`);
+  getByGroup(groupName: string): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(`${this.apiUrl}/group/${groupName}`);
   }
 
 // Front/src/app/core/services/transaction-service.ts
 
-uploadStatement(groupName: string, file: File, bank: string): Observable<any> {
+uploadStatement(groupName: string, file: File, bank: string): Observable<{ message?: string }> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('bank', bank);

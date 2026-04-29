@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import com.tcc.splith.dto.TransactionResponseDTO;
+import java.util.stream.Collectors;
 import java.util.List;
 
 import com.tcc.splith.service.StatementImportService;
@@ -38,7 +40,7 @@ public class TransactionController {
     }
 
     @GetMapping("/group/{groupName}")
-    public ResponseEntity<List<Transaction>> getGroupTransactions(@PathVariable String groupName) {
+    public ResponseEntity<List<TransactionResponseDTO>> getGroupTransactions(@PathVariable String groupName) {
         // 1. Busca o grupo pelo nome
         Group group = groupRepository.findByName(groupName)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grupo não encontrado"));
@@ -46,20 +48,24 @@ public class TransactionController {
         // 2. Busca as transações usando o ID do grupo encontrado
         List<Transaction> transactions = transactionRepository.findByGroupId(group.getId());
 
-        return ResponseEntity.ok(transactions);
+        List<TransactionResponseDTO> response = transactions.stream()
+                .map(TransactionResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody TransactionRequest request) {
         JWTUserData loggedUser = (JWTUserData) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(loggedUser.userId()).orElseThrow();
 
         Transaction saved = transactionService.createAndSplitTransaction(request, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(TransactionResponseDTO.fromEntity(saved));
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getUserTransactions() {
+    public ResponseEntity<List<TransactionResponseDTO>> getUserTransactions() {
         // 1. Descobre quem é o usuário logado pelo Token
         JWTUserData loggedUser = (JWTUserData) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(loggedUser.userId()).orElseThrow();
@@ -68,11 +74,15 @@ public class TransactionController {
         List<Transaction> transactions = transactionRepository.findByUserOrderByIdDesc(user);
 
         // 3. Devolve a lista para o Angular
-        return ResponseEntity.ok(transactions);
+        List<TransactionResponseDTO> response = transactions.stream()
+                .map(TransactionResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionResponseDTO> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest request) {
         JWTUserData loggedUser = (JWTUserData) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userRepository.findById(loggedUser.userId()).orElseThrow();
 
@@ -97,7 +107,8 @@ public class TransactionController {
             t.setGroup(null);
         }
 
-        return ResponseEntity.ok(transactionRepository.save(t));
+        Transaction saved = transactionRepository.save(t);
+        return ResponseEntity.ok(TransactionResponseDTO.fromEntity(saved));
     }
 
     @DeleteMapping("/{id}")
