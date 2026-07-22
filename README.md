@@ -1,122 +1,127 @@
-# SplitH — Sistema de controle financeiro compartilhado
+# SplitH — Sistema de Controle Financeiro Compartilhado
 
-Projeto de TCC: SplitH (nome provisório). Aplicação para controle financeiro compartilhado entre usuários/grupos, com frontend em Angular e backend em Java (Spring).
+Projeto de TCC (Trabalho de Conclusão de Curso — ADS/UniCesumar). Aplicação para controle financeiro compartilhado entre usuários e grupos, permitindo registrar despesas, dividir valores entre participantes e acompanhar saldos de forma colaborativa.
+
+Desenvolvido em dupla por [CrisHeinzen](https://github.com/CrisHeinzen) e [LuisRuediger](https://github.com/LuisRuediger).
 
 ## Visão geral
 
-SplitH permite que usuários registrem despesas, dividam valores entre participantes e acompanhem saldos de forma colaborativa. Este repositório contém a aplicação frontend (pasta `Front`) e o backend (pasta `Back/splith`).
+O SplitH é dividido em duas partes:
 
-## Status
-Em desenvolvimento — protótipo inicial com telas de login e estrutura básica do backend.
+- **Front/** — aplicação frontend em Angular
+- **Back/splith/** — API backend em Java com Spring Boot
+
+## Status do projeto
+
+🚧 Em desenvolvimento. Já implementado:
+- Estrutura inicial do backend (Spring Boot, camadas de autenticação)
+- Tela de login no frontend
+
+Em construção:
+- Fluxos de cadastro de despesas e divisão de valores entre participantes
+- Autenticação completa e controle de permissões por grupo
 
 ## Tecnologias
-- Frontend: Angular (CLI)
-- Backend: Java + Spring Boot
-- Tipos de arquivos e libs observadas: Tailwind, PrimeNG, Lombok (no backend)
-- Ferramentas: Node.js, npm/yarn, Maven/Gradle (backend)
+
+| Camada | Stack |
+|---|---|
+| Backend | Java, Spring Boot, Maven/Gradle, Lombok |
+| Frontend | Angular, TypeScript, Tailwind CSS, PrimeNG |
+| Banco de Dados | PostgreSQL |
 
 ## Estrutura do repositório
-- Front/ — código do frontend Angular
-- Back/splith/ — código do backend Java (pacote `com.tcc.splith`)
-- README.md — (este arquivo proposto)
 
-## Requisitos (exemplos)
-- Node.js >= 16
-- npm ou yarn
-- Java JDK 17+ (verificar versão requerida no projeto)
-- Maven (ou Gradle), se o projeto backend usar Maven/Gradle
-- (Opcional) Docker/Docker Compose
+```
+SplitH/
+├── Front/          # Aplicação Angular
+├── Back/splith/    # API Java (pacote com.tcc.splith)
+└── README.md
+```
 
-## Executando em desenvolvimento
+## Pré-requisitos
 
-### Frontend
-1. Abrir terminal:
-   cd Front
-2. Instalar dependências:
-   npm install
-   (ou `yarn` / `pnpm install` conforme preferência)
-3. Executar servidor de desenvolvimento:
-   npx ng serve
-   Ou, se estiver configurado:
-   npm run start
-4. Acessar:
-   http://localhost:4200
+- Node.js 16+
+- npm, yarn ou pnpm
+- Java JDK 17+
+- Maven ou Gradle
+- PostgreSQL (local ou via Docker)
 
-### Backend
-1. Abrir terminal:
-   cd Back/splith
-2. Se o projeto usa Maven:
-   ./mvnw spring-boot:run
-   ou
-   mvn spring-boot:run
-3. Se usar Gradle:
-   ./gradlew bootRun
-4. O backend normalmente sobe em:
-   http://localhost:8080
-   (verifique `application.properties` / `application.yml` para a porta)
-
-## Variáveis de ambiente / Configurações comuns
-No backend normalmente são necessárias variáveis de configuração (exemplos):
-- SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/splith
-- SPRING_DATASOURCE_USERNAME=usuario
-- SPRING_DATASOURCE_PASSWORD=senha
-- JWT_SECRET=uma_chave_secreta_para_tokens
-- SERVER_PORT=8080
-
-Adapte conforme seu arquivo de configuração do Spring (application.properties/yml). Para desenvolvimento, você pode usar um banco embarcado ou configurar um container Postgres.
-
-## Endpoints (exemplo)
-Observando o DTO `LoginRequest` (campos `email` e `password`), um exemplo de chamada de login pode ser:
-
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"usuario@exemplo.com","password":"minhasenha"}'
-
-(Substitua a rota `/api/auth/login` pela rota real definida nos controllers do backend.)
-
-## Build / Produção
+## Rodando em desenvolvimento
 
 ### Frontend
-- Gerar build de produção:
-  cd Front
-  npx ng build --configuration production
-  Os artefatos ficarão em `Front/dist/` (ou conforme configuração).
+
+```bash
+cd Front
+npm install
+npx ng serve
+```
+Acesse em `http://localhost:4200`.
 
 ### Backend
-- Gerar jar com Maven:
-  mvn clean package
-  java -jar target/seu-app.jar
+
+```bash
+cd Back/splith
+./mvnw spring-boot:run
+# ou, se usar Gradle:
+./gradlew bootRun
+```
+API disponível em `http://localhost:8080` (confira a porta em `application.properties`/`application.yml`).
+
+## Configuração de ambiente
+
+O backend espera variáveis de configuração de banco de dados e de autenticação. Crie um arquivo `.env` ou configure diretamente em `application.properties`, por exemplo:
+
+```
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/splith
+SPRING_DATASOURCE_USERNAME=<seu_usuario>
+SPRING_DATASOURCE_PASSWORD=<sua_senha>
+JWT_SECRET=<gere_uma_chave_segura>
+SERVER_PORT=8080
+```
+
+> Nunca faça commit de credenciais reais — use `.env` ou variáveis de ambiente do sistema, e adicione esses arquivos ao `.gitignore`.
+
+## Build para produção
+
+**Frontend:**
+```bash
+cd Front
+npx ng build --configuration production
+```
+Artefatos gerados em `Front/dist/`.
+
+**Backend:**
+```bash
+cd Back/splith
+mvn clean package
+java -jar target/splith.jar
+```
 
 ## Testes
-- Frontend:
-  cd Front
-  npx ng test
-- Backend:
-  mvn test (ou ./mvnw test)
 
-## Desenvolvimento colaborativo
-- Siga o padrão de commits do time (ex.: Conventional Commits)
-- Abra pull requests com descrição clara do que foi alterado
-- Para features maiores, crie uma branch feature/nome-da-feature
+```bash
+# Frontend
+cd Front && npx ng test
+
+# Backend
+cd Back/splith && mvn test
+```
+
+## Roadmap
+
+- [ ] Documentar endpoints com Swagger/OpenAPI
+- [ ] Adicionar `docker-compose` para subir frontend, backend e banco juntos
+- [ ] Implementar autenticação completa e permissões por grupo
+- [ ] Testes automatizados de ponta a ponta
 
 ## Contribuindo
-1. Fork do repositório
-2. Crie uma branch: `feature/minha-feature`
-3. Adicione testes e documentação
+
+1. Faça um fork do repositório
+2. Crie uma branch: `feature/nome-da-feature`
+3. Adicione testes e documentação quando aplicável
 4. Abra um Pull Request descrevendo as mudanças
 
-## Onde procurar código relevante
-- Front: componentes de login e dashboard em `Front/src/app/components/`
-- Back: pacotes em `Back/splith/src/main/java/com/tcc/splith/`
+## Autores
 
-## Sugestões futuras
-- Adicionar um docker-compose para facilitar o ambiente (frontend, backend, banco)
-- Documentar endpoints com Swagger/OpenAPI
-- Implementar autenticação completa e controle de permissões para grupos
-
-## Contato
-Criadores / mantenedores: LuisRuediger e CrisHeinzen
-
-## Licença
-Adicionar a licença do projeto (ex.: MIT) — caso ainda não exista, escolha e adicione um arquivo `LICENSE`.
-
+- [Cristiano Heinzen](https://github.com/CrisHeinzen)
+- [Luis Ruediger](https://github.com/LuisRuediger)
